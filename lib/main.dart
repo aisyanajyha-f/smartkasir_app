@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'splash_screen.dart';
 void main() {
   runApp(const SmartKasirApp());
 }
@@ -13,10 +13,10 @@ class SmartKasirApp extends StatelessWidget {
       title: 'SmartKasir',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const KasirHomePage(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -24,8 +24,9 @@ class SmartKasirApp extends StatelessWidget {
 class Product {
   final String name;
   final int price;
+  final String? badge; // <-- Tambahkan baris ini
 
-  Product({required this.name, required this.price});
+  Product({required this.name, required this.price, this.badge});
 }
 
 class KasirHomePage extends StatefulWidget {
@@ -38,11 +39,15 @@ class KasirHomePage extends StatefulWidget {
 class _KasirHomePageState extends State<KasirHomePage> {
   // 1. Daftar Produk (Bisa ditambah dinamis)
   final List<Product> products = [
-    Product(name: 'Kopi Susu Gula Aren', price: 18000),
-    Product(name: 'Roti Bakar Coklat', price: 15000),
-    Product(name: 'Es Teh Manis', price: 5000),
-    Product(name: 'Nasi Goreng Spesial', price: 25000),
-  ];
+  Product(
+    name: 'Kopi Susu Gula Aren', 
+    price: 18000, 
+    badge: 'PROMO 20%' // <-- Tambahkan badge di sini
+  ),
+  Product(name: 'Roti Bakar Coklat', price: 15000),
+  Product(name: 'Es Teh Manis', price: 5000),
+  Product(name: 'Nasi Goreng Spesial', price: 25000),
+];
 
   // 2. Keranjang Belanja
   final List<Product> cart = [];
@@ -238,24 +243,40 @@ class _KasirHomePageState extends State<KasirHomePage> {
                     child: ListView.builder(
                       itemCount: products.length,
                       itemBuilder: (context, index) {
-                        final product = products[index];
-                        return Card(
-                          child: ListTile(
-                            title: Text(product.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500)),
-                            subtitle: Text('Rp ${product.price}'),
-                            trailing: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  cart.add(product);
-                                });
-                              },
-                              child: const Text('Tambah'),
-                            ),
-                          ),
-                        );
-                      },
+  final product = products[index];
+  return Card(
+    child: ListTile(
+      title: Row(
+        children: [
+          Text(product.name, style: const TextStyle(fontWeight: FontWeight.w500)),
+          if (product.badge != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                product.badge!,
+                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ],
+      ),
+      subtitle: Text('Rp ${product.price}'),
+      trailing: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            cart.add(product);
+          });
+        },
+        child: const Text('Tambah'),
+      ),
+    ),
+  );
+},
                     ),
                   ),
                 ],
@@ -327,7 +348,7 @@ class _KasirHomePageState extends State<KasirHomePage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.pink,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: cart.isEmpty ? null : _showCheckoutDialog,
